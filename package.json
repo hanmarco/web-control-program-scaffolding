@@ -16,7 +16,10 @@
     "pinia": "^2.2.8",
     "vue-router": "^4.5.0",
     "vuetify": "^3.7.5",
-    "@mdi/font": "^7.4.47"
+    "@mdi/font": "^7.4.47",
+    "@tauri-apps/cli": "^2.2.0",
+    "@tauri-apps/api": "^2.2.0",
+    "@tauri-apps/plugin-log": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",
@@ -25,8 +28,6 @@
     "typescript": "~5.9.3",
     "vite": "^6.0.7",
     "vue-tsc": "^3.1.0",
-    "@tauri-apps/cli": "^2.2.0",
-    "@tauri-apps/api": "^2.2.0",
     "vite-plugin-vuetify": "^2.0.4"
   }
 }
