@@ -44,16 +44,6 @@
     <v-main>
       <router-view />
     </v-main>
-
-    <v-footer app>
-      <v-container>
-        <div class="text-center">
-          <span class="text-caption">
-            IC Evaluation Board Application v0.1.0 | Built with Vue 3 + Tauri
-          </span>
-        </div>
-      </v-container>
-    </v-footer>
   </v-app>
 </template>
 
