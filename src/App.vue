@@ -23,22 +23,187 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>IC Evaluation Board Control</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-chip
-        v-if="commStore.isConnected"
-        color="success"
-        variant="flat"
-        prepend-icon="mdi-connection"
-      >
-        Connected
-      </v-chip>
-      <v-chip
-        v-else
-        color="grey"
-        variant="flat"
-        prepend-icon="mdi-connection"
-      >
-        Disconnected
-      </v-chip>
+      
+      <!-- Connection Status with Quick Connect -->
+      <div class="d-flex align-center ga-2">
+        <!-- Settings button (visible when disconnected) -->
+        <v-menu
+          v-if="!commStore.isConnected"
+          v-model="showConnectionMenu"
+          :close-on-content-click="false"
+          location="bottom end"
+          offset="10"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-cog"
+              variant="text"
+              size="small"
+              color="info"
+            ></v-btn>
+          </template>
+
+          <!-- Quick Connect Settings Panel -->
+          <v-card min-width="320" max-width="400">
+            <v-card-title class="d-flex align-center">
+              <v-icon class="mr-2">mdi-settings</v-icon>
+              Connection Settings
+            </v-card-title>
+            <v-card-text>
+              <v-select
+                v-model="quickConnectionSettings.protocol"
+                :items="protocolOptions"
+                label="Protocol"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+              ></v-select>
+
+              <v-text-field
+                v-model="quickConnectionSettings.devicePath"
+                label="Device Path"
+                :placeholder="quickConnectionSettings.protocol === 'I2C' ? '/dev/i2c-1' : '/dev/ttyUSB0'"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+              ></v-text-field>
+
+              <v-text-field
+                v-if="quickConnectionSettings.protocol === 'Serial'"
+                v-model.number="quickConnectionSettings.baudRate"
+                label="Baud Rate"
+                type="number"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+              ></v-text-field>
+
+              <v-text-field
+                v-model="quickConnectionSettings.slaveAddress"
+                label="Slave Address"
+                placeholder="0x50"
+                variant="outlined"
+                density="compact"
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                :loading="commStore.isLoading"
+                block
+                @click="handleQuickConnect"
+              >
+                <v-icon start>mdi-connection</v-icon>
+                Connect
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+
+        <!-- Settings button (only visible when connected) -->
+        <v-menu
+          v-if="commStore.isConnected"
+          v-model="showConnectionMenu"
+          :close-on-content-click="false"
+          location="bottom end"
+          offset="10"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-cog"
+              variant="text"
+              size="small"
+              color="info"
+            ></v-btn>
+          </template>
+
+          <!-- Connection Settings Panel -->
+          <v-card min-width="320" max-width="400">
+            <v-card-title class="d-flex align-center">
+              <v-icon class="mr-2">mdi-settings</v-icon>
+              Connection Settings
+            </v-card-title>
+            <v-card-text>
+              <v-select
+                v-model="quickConnectionSettings.protocol"
+                :items="protocolOptions"
+                label="Protocol"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+                readonly
+              ></v-select>
+
+              <v-text-field
+                v-model="quickConnectionSettings.devicePath"
+                label="Device Path"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+                readonly
+              ></v-text-field>
+
+              <v-text-field
+                v-if="quickConnectionSettings.protocol === 'Serial'"
+                v-model.number="quickConnectionSettings.baudRate"
+                label="Baud Rate"
+                type="number"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+                readonly
+              ></v-text-field>
+
+              <v-text-field
+                v-model="quickConnectionSettings.slaveAddress"
+                label="Slave Address"
+                variant="outlined"
+                density="compact"
+                readonly
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="error"
+                :loading="commStore.isLoading"
+                block
+                @click="handleQuickDisconnect"
+              >
+                <v-icon start>mdi-connection-off</v-icon>
+                Disconnect
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+
+        <!-- To Connect Status Chip (clickable for connect with current settings) -->
+        <v-chip
+          v-if="!commStore.isConnected"
+          color="info"
+          variant="flat"
+          prepend-icon="mdi-connection-off"
+          clickable
+          :loading="commStore.isLoading"
+          @click="handleQuickConnect"
+        >
+          To Connect
+        </v-chip>
+
+        <!-- Connected Status Chip (clickable for disconnect) -->
+        <v-chip
+          v-if="commStore.isConnected"
+          color="error"
+          variant="flat"
+          prepend-icon="mdi-connection"
+          clickable
+          :loading="commStore.isLoading"
+          @click="handleQuickDisconnect"
+        >
+          Connected
+        </v-chip>
+      </div>
     </v-app-bar>
 
     <v-main>
@@ -48,11 +213,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useCommunicationStore } from './stores/communicationStore'
+import type { CommunicationProtocol } from './interfaces/CommunicationInterface'
+import { MockCommunication } from './interfaces/MockCommunication'
 
 const drawer = ref(false)
 const commStore = useCommunicationStore()
+const showConnectionMenu = ref(false)
+
+// Quick connection settings
+const quickConnectionSettings = reactive({
+  protocol: 'I2C' as CommunicationProtocol,
+  devicePath: '/dev/i2c-1',
+  baudRate: 115200,
+  slaveAddress: '0x50'
+})
+
+const protocolOptions = [
+  { title: 'I2C', value: 'I2C' },
+  { title: 'Serial', value: 'Serial' },
+  { title: 'Mock (Testing)', value: 'Mock' },
+]
+
+// Handle quick connect
+async function handleQuickConnect() {
+  try {
+    const mockComm = new MockCommunication()
+    
+    await commStore.connect(
+      {
+        protocol: quickConnectionSettings.protocol,
+        devicePath: quickConnectionSettings.devicePath,
+        baudRate: quickConnectionSettings.baudRate,
+      },
+      mockComm
+    )
+    
+    showConnectionMenu.value = false
+  } catch (error) {
+    console.error('Connection failed:', error)
+  }
+}
+
+// Handle quick disconnect
+async function handleQuickDisconnect() {
+  try {
+    await commStore.disconnect()
+  } catch (error) {
+    console.error('Disconnect failed:', error)
+  }
+}
 </script>
 
 <style>
