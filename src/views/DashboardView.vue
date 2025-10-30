@@ -1,11 +1,5 @@
 <template>
   <v-container fluid>
-    <v-row>
-      <v-col cols="12">
-        <h1 class="text-h4 mb-4">IC Evaluation Board Control</h1>
-      </v-col>
-    </v-row>
-
     <v-row v-if="!registerStore.registerMap">
       <v-col cols="12">
         <v-card>
@@ -22,27 +16,6 @@
     </v-row>
 
     <template v-else>
-      <v-row>
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              {{ registerStore.registerMap.name }}
-            </v-card-title>
-            <v-card-subtitle v-if="registerStore.registerMap.description">
-              {{ registerStore.registerMap.description }}
-            </v-card-subtitle>
-            <v-card-text>
-              <v-chip class="mr-2" size="small">
-                Version: {{ registerStore.registerMap.version }}
-              </v-chip>
-              <v-chip size="small">
-                Default Slave: {{ registerStore.registerMap.defaultSlaveAddress }}
-              </v-chip>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
       <v-row>
         <v-col
           v-for="register in registerStore.registers"
