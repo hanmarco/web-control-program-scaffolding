@@ -106,26 +106,6 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>About</v-card-title>
-          <v-card-text>
-            <p class="text-body-2">
-              <strong>IC Evaluation Board Application</strong>
-            </p>
-            <p class="text-body-2">
-              This application provides a user-friendly interface for controlling
-              IC evaluation boards through various communication protocols (I2C, Serial, etc.).
-            </p>
-            <p class="text-caption mt-2">
-              Version: 0.1.0
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
     <v-snackbar
       v-model="showSnackbar"
       :color="snackbarColor"
