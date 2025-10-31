@@ -73,37 +73,6 @@
           </v-card-actions>
         </v-card>
       </v-col>
-
-      <v-col cols="12" md="6">
-        <v-card>
-          <v-card-title>Register Map</v-card-title>
-          <v-card-text>
-            <v-btn
-              color="primary"
-              variant="outlined"
-              block
-              @click="loadSampleMap"
-            >
-              <v-icon start>mdi-file-document</v-icon>
-              Load Sample Register Map
-            </v-btn>
-
-            <v-divider class="my-4"></v-divider>
-
-            <div v-if="registerStore.registerMap">
-              <p class="text-subtitle-1 font-weight-bold">Current Map:</p>
-              <p class="text-body-2">{{ registerStore.registerMap.name }}</p>
-              <p class="text-caption">
-                Version {{ registerStore.registerMap.version }} •
-                {{ registerStore.registers.length }} registers
-              </p>
-            </div>
-            <div v-else>
-              <p class="text-body-2 text-grey">No register map loaded</p>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
     </v-row>
 
     <v-snackbar
@@ -119,12 +88,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useCommunicationStore } from '../stores/communicationStore'
-import { useRegisterStore } from '../stores/registerStore'
 import type { CommunicationProtocol } from '../interfaces/CommunicationInterface'
 import { MockCommunication } from '../interfaces/MockCommunication'
 
 const commStore = useCommunicationStore()
-const registerStore = useRegisterStore()
 
 const selectedProtocol = ref<string>('I2C')
 const devicePath = ref('/dev/i2c-1')
@@ -172,19 +139,6 @@ async function handleDisconnect() {
     showSnackbar.value = true
   } catch (error) {
     snackbarMessage.value = error instanceof Error ? error.message : 'Disconnect failed'
-    snackbarColor.value = 'error'
-    showSnackbar.value = true
-  }
-}
-
-async function loadSampleMap() {
-  try {
-    await registerStore.loadRegisterMapFromFile('/sample-register-map.json')
-    snackbarMessage.value = 'Register map loaded successfully'
-    snackbarColor.value = 'success'
-    showSnackbar.value = true
-  } catch (error) {
-    snackbarMessage.value = error instanceof Error ? error.message : 'Failed to load register map'
     snackbarColor.value = 'error'
     showSnackbar.value = true
   }
