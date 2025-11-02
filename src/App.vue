@@ -10,7 +10,7 @@
         <v-btn-group v-if="!commStore.isConnected" variant="flat" divided>
           <!-- Main Connect Button -->
           <v-btn
-            color="success"
+            color="info"
             :loading="commStore.isLoading"
             @click="handleQuickConnect"
           >
@@ -28,7 +28,7 @@
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"
-                color="success"
+                color="info"
                 icon="mdi-chevron-down"
               ></v-btn>
             </template>
