@@ -16,6 +16,11 @@
           title="General Panel"
           to="/general"
         ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-history"
+          title="Operation History"
+          to="/history"
+        ></v-list-item>
       </v-list>
     </v-navigation-drawer>
 

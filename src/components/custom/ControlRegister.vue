@@ -180,11 +180,32 @@ async function readRegister() {
     if (value !== undefined) {
       registerStore.updateRegisterValue(props.register.address, value)
       updateBitsFromValue(value)
+      
+      // Add to global history
+      addToGlobalHistory({
+        type: 'read',
+        address: props.register.address,
+        value: `0x${value.toString(16).toUpperCase().padStart(2, '0')}`,
+        success: true,
+        timestamp: new Date().toLocaleTimeString(),
+        source: 'dashboard'
+      })
     }
     lastOpStatus.value = 'success'
     lastOpTime.value = new Date().toLocaleTimeString()
   } catch (error) {
     console.error('Failed to read register:', error)
+    
+    // Add error to global history
+    addToGlobalHistory({
+      type: 'read',
+      address: props.register.address,
+      value: 'ERROR',
+      success: false,
+      timestamp: new Date().toLocaleTimeString(),
+      source: 'dashboard'
+    })
+    
     lastOpStatus.value = 'error'
     lastOpTime.value = 'Error'
   } finally {
@@ -208,14 +229,43 @@ async function writeRegister() {
     
     // Update register store cache
     registerStore.updateRegisterValue(props.register.address, currentValue.value)
+    
+    // Add to global history
+    addToGlobalHistory({
+      type: 'write',
+      address: props.register.address,
+      value: `0x${currentValue.value.toString(16).toUpperCase().padStart(2, '0')}`,
+      success: true,
+      timestamp: new Date().toLocaleTimeString(),
+      source: 'dashboard'
+    })
+    
     lastOpStatus.value = 'success'
     lastOpTime.value = new Date().toLocaleTimeString()
   } catch (error) {
     console.error('Failed to write register:', error)
+    
+    // Add error to global history
+    addToGlobalHistory({
+      type: 'write',
+      address: props.register.address,
+      value: 'ERROR',
+      success: false,
+      timestamp: new Date().toLocaleTimeString(),
+      source: 'dashboard'
+    })
+    
     lastOpStatus.value = 'error'
     lastOpTime.value = 'Error'
   } finally {
     isWriting.value = false
+  }
+}
+
+// Utility function to add operations to global history
+function addToGlobalHistory(operation: any) {
+  if ((window as any).addOperationHistory) {
+    (window as any).addOperationHistory(operation)
   }
 }
 

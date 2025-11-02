@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/GeneralPanelView.vue'),
     },
     {
+      path: '/history',
+      name: 'history',
+      component: () => import('../views/HistoryView.vue'),
+    },
+    {
       path: '/register/:address',
       name: 'register-detail',
       component: () => import('../views/RegisterDetailView.vue'),

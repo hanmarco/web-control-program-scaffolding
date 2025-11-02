@@ -135,47 +135,6 @@
                 </v-btn>
               </div>
             </div>
-            
-            <!-- Operation History -->
-            <v-divider class="my-4"></v-divider>
-            
-            <div class="operation-history">
-              <div class="d-flex align-center mb-3">
-                <v-icon class="mr-2">mdi-history</v-icon>
-                <span class="text-h6">Operation History</span>
-                <v-spacer></v-spacer>
-                <v-btn
-                  size="small"
-                  variant="text"
-                  @click="clearHistory"
-                  :disabled="operationHistory.length === 0"
-                >
-                  Clear
-                </v-btn>
-              </div>
-              
-              <div v-if="operationHistory.length === 0" class="text-center py-4 text-grey">
-                No operations performed yet
-              </div>
-              
-              <v-timeline v-else density="compact" class="operation-timeline">
-                <v-timeline-item
-                  v-for="(op, index) in operationHistory.slice(-10)"
-                  :key="index"
-                  size="small"
-                  :dot-color="op.success ? 'success' : 'error'"
-                >
-                  <div class="d-flex align-center justify-space-between">
-                    <span class="text-body-2">
-                      <strong>{{ op.type.toUpperCase() }}</strong> {{ op.address }} 
-                      <span v-if="op.type === 'write'">← {{ op.value }}</span>
-                      <span v-else>→ {{ op.value }}</span>
-                    </span>
-                    <span class="text-caption text-grey">{{ op.timestamp }}</span>
-                  </div>
-                </v-timeline-item>
-              </v-timeline>
-            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -209,17 +168,6 @@ const isWriting = ref(false)
 const showSnackbar = ref(false)
 const snackbarMessage = ref('')
 const snackbarColor = ref('success')
-
-// Operation history
-interface OperationRecord {
-  type: 'read' | 'write'
-  address: string
-  value: string
-  success: boolean
-  timestamp: string
-}
-
-const operationHistory = ref<OperationRecord[]>([])
 
 // Computed values
 const hexValue = computed(() => {
@@ -316,13 +264,14 @@ async function readRegister() {
       // Update register store if this address exists in register map
       registerStore.updateRegisterValue(addressHex, value)
       
-      // Add to history
-      operationHistory.value.push({
+      // Add to global history
+      addToGlobalHistory({
         type: 'read',
         address: addressHex,
         value: `0x${value.toString(16).toUpperCase().padStart(2, '0')}`,
         success: true,
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString(),
+        source: 'general'
       })
       
       showMessage('Register read successfully', 'success')
@@ -330,12 +279,13 @@ async function readRegister() {
   } catch (error) {
     console.error('Failed to read register:', error)
     
-    operationHistory.value.push({
+    addToGlobalHistory({
       type: 'read',
       address: addressHex,
       value: 'ERROR',
       success: false,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString(),
+      source: 'general'
     })
     
     showMessage('Failed to read register', 'error')
@@ -360,25 +310,27 @@ async function writeRegister() {
     // Update register store if this address exists in register map
     registerStore.updateRegisterValue(addressHex, currentValue.value)
     
-    // Add to history
-    operationHistory.value.push({
+    // Add to global history
+    addToGlobalHistory({
       type: 'write',
       address: addressHex,
       value: `0x${currentValue.value.toString(16).toUpperCase().padStart(2, '0')}`,
       success: true,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString(),
+      source: 'general'
     })
     
     showMessage('Register written successfully', 'success')
   } catch (error) {
     console.error('Failed to write register:', error)
     
-    operationHistory.value.push({
+    addToGlobalHistory({
       type: 'write',
       address: addressHex,
       value: 'ERROR',
       success: false,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString(),
+      source: 'general'
     })
     
     showMessage('Failed to write register', 'error')
@@ -394,8 +346,11 @@ function showMessage(message: string, color: string) {
   showSnackbar.value = true
 }
 
-function clearHistory() {
-  operationHistory.value = []
+function addToGlobalHistory(operation: any) {
+  // Add to global history via window object
+  if ((window as any).addOperationHistory) {
+    (window as any).addOperationHistory(operation)
+  }
 }
 
 // Watch for register store changes to keep values in sync
