@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       
       <!-- Connection Status with Split Button -->
-      <div class="d-flex align-center mr-4" style="flex-shrink: 0;">
+      <div class="d-flex align-center" style="flex-shrink: 0; margin-right: 20px;">
         <!-- Split Button for Disconnected State -->
         <v-btn-group v-if="!commStore.isConnected" variant="flat" divided>
           <!-- Main Connect Button -->
