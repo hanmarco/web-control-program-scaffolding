@@ -9,6 +9,11 @@ const router = createRouter({
       component: () => import('../views/DashboardView.vue'),
     },
     {
+      path: '/general',
+      name: 'general',
+      component: () => import('../views/GeneralPanelView.vue'),
+    },
+    {
       path: '/register/:address',
       name: 'register-detail',
       component: () => import('../views/RegisterDetailView.vue'),

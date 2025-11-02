@@ -71,6 +71,7 @@ import { ref, onMounted } from 'vue'
 import { useRegisterStore } from '../stores/registerStore'
 import type { RegisterType } from '../types/RegisterTypes'
 import ByteType from '../components/custom/ByteType.vue'
+import ControlRegister from '../components/custom/ControlRegister.vue'
 import Indicator from '../components/custom/Indicator.vue'
 import Slider from '../components/custom/Slider.vue'
 import Combobox from '../components/custom/Combobox.vue'
@@ -85,6 +86,8 @@ function getComponentForType(type: RegisterType) {
   switch (type) {
     case 'byte':
       return ByteType
+    case 'control':
+      return ControlRegister
     case 'indicator':
       return Indicator
     case 'slider':

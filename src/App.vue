@@ -1,6 +1,26 @@
 <template>
   <v-app>
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      temporary
+    >
+      <v-list>
+        <v-list-item
+          prepend-icon="mdi-view-dashboard"
+          title="Dashboard"
+          to="/"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-developer-board"
+          title="General Panel"
+          to="/general"
+        ></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
     <v-app-bar color="primary" prominent>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>IC Evaluation Board Control</v-app-bar-title>
       <v-spacer></v-spacer>
       
@@ -192,6 +212,7 @@ import { useCommunicationStore } from './stores/communicationStore'
 import type { CommunicationProtocol } from './interfaces/CommunicationInterface'
 import { MockCommunication } from './interfaces/MockCommunication'
 
+const drawer = ref(false)
 const commStore = useCommunicationStore()
 const showConnectionMenu = ref(false)
 

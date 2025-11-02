@@ -57,6 +57,14 @@ export const useRegisterStore = defineStore('register', () => {
     return registerValues.value.get(address)?.value
   }
 
+  function updateRegisterValue(address: string, value: number) {
+    registerValues.value.set(address, {
+      address,
+      value,
+      timestamp: Date.now()
+    })
+  }
+
   async function readRegisterValue(address: string, slaveAddr?: number): Promise<number> {
     const commStore = useCommunicationStore()
     const addr = slaveAddr || defaultSlaveAddress.value
@@ -153,6 +161,7 @@ export const useRegisterStore = defineStore('register', () => {
     loadRegisterMapFromFile,
     getRegister,
     getRegisterValue,
+    updateRegisterValue,
     readRegisterValue,
     writeRegisterValue,
     setBitValue,

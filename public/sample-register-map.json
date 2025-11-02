@@ -24,7 +24,16 @@
       "address": "0x10",
       "name": "Control Register",
       "description": "Main control register with 8 configurable bits",
-      "type": "byte",
+      "type": "control",
+      "mode": "debug",
+      "writable": true
+    },
+    {
+      "address": "0x11",
+      "name": "GPIO Control",
+      "description": "GPIO pins configuration",
+      "type": "control",
+      "mode": "compact",
       "writable": true
     },
     {
@@ -111,7 +120,8 @@
       "address": "0x30",
       "name": "GPIO Control",
       "description": "General purpose I/O configuration",
-      "type": "byte",
+      "type": "control",
+      "mode": "compact",
       "writable": true
     },
     {

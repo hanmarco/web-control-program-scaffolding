@@ -1,7 +1,7 @@
 /**
  * Register UI component types
  */
-export type RegisterType = 'byte' | 'indicator' | 'slider' | 'combobox' | 'bitfield';
+export type RegisterType = 'byte' | 'indicator' | 'slider' | 'combobox' | 'bitfield' | 'control';
 
 /**
  * Base register definition
@@ -18,6 +18,14 @@ export interface RegisterBase {
  */
 export interface ByteRegister extends RegisterBase {
   type: 'byte';
+}
+
+/**
+ * Control type register - compact 8-bit control with R/W buttons
+ */
+export interface ControlRegister extends RegisterBase {
+  type: 'control';
+  mode?: 'debug' | 'compact'; // debug: full featured, compact: minimal UI
 }
 
 /**
@@ -76,6 +84,7 @@ export interface BitFieldRegister extends RegisterBase {
  */
 export type Register =
   | ByteRegister
+  | ControlRegister
   | IndicatorRegister
   | SliderRegister
   | ComboboxRegister
