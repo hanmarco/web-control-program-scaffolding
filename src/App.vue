@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       
       <!-- Connection Status with Split Button -->
-      <div class="d-flex align-center">
+      <div class="d-flex align-center mr-4" style="flex-shrink: 0;">
         <!-- Split Button for Disconnected State -->
         <v-btn-group v-if="!commStore.isConnected" variant="flat" divided>
           <!-- Main Connect Button -->
@@ -241,5 +241,57 @@ async function handleQuickDisconnect() {
 
 <style>
 /* Global styles */
+
+/* Hide horizontal scrollbar */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Prevent horizontal scrolling */
+.v-app {
+  overflow-x: hidden;
+}
+
+/* Ensure app bar content doesn't overflow */
+.v-app-bar {
+  overflow-x: hidden;
+}
+
+.v-app-bar .v-toolbar__content {
+  overflow-x: hidden;
+  padding-right: 16px;
+}
+
+/* Ensure button group doesn't cause overflow */
+.v-btn-group {
+  flex-shrink: 0;
+  max-width: calc(100vw - 400px); /* Reserve space for title and margins */
+}
+
+/* Ensure connection menu cards fit properly */
+.v-menu .v-card {
+  max-width: min(400px, calc(100vw - 32px));
+}
+
+/* Fix any potential overflow in main content */
+.v-main {
+  overflow-x: hidden;
+}
+
+/* Webkit scrollbar hiding */
+::-webkit-scrollbar:horizontal {
+  display: none;
+}
+
+/* Firefox scrollbar hiding */
+* {
+  scrollbar-width: none;
+}
+
+/* Hide scrollbars but keep functionality */
+* {
+  -ms-overflow-style: none;
+}
 </style>
 
