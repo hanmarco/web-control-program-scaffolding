@@ -7,8 +7,14 @@ import VueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig({
   plugins: [
     vue(),
-    vuetify({ autoImport: true }),
-    VueDevTools()
+    vuetify({ 
+      autoImport: true,
+      // Remove SASS styles configuration to avoid dependency issues
+    }),
+    VueDevTools({
+      // Optimize DevTools for Tauri WebView
+      launchEditor: 'code'
+    })
   ],
   // Prevent vite from obscuring rust errors
   clearScreen: false,
@@ -16,6 +22,18 @@ export default defineConfig({
   server: {
     port: 8080,
     strictPort: true,
+    host: 'localhost',
+    cors: true,
+  },
+  // Remove CSS preprocessing to avoid SASS issues
+  css: {
+    // Remove preprocessorOptions that require SASS
+  },
+  // Optimize module resolution
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
   },
   // to access the Tauri environment variables set by the CLI with information about the current target
   envPrefix: ['VITE_', 'TAURI_PLATFORM', 'TAURI_ARCH', 'TAURI_FAMILY', 'TAURI_PLATFORM_VERSION', 'TAURI_PLATFORM_TYPE', 'TAURI_DEBUG'],
@@ -26,5 +44,25 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+    // Optimize bundle for WebView
+    rollupOptions: {
+      output: {
+        // Ensure compatibility with WebKit
+        format: 'es',
+        manualChunks: {
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          'vuetify-vendor': ['vuetify'],
+        },
+      },
+    },
+    // Optimize asset handling
+    assetsInlineLimit: 4096,
+    // Better CSS handling
+    cssCodeSplit: true,
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['vue', 'vue-router', 'pinia', 'vuetify'],
+    exclude: ['@tauri-apps/api'],
   },
 })

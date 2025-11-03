@@ -1,79 +1,159 @@
+/* Tauri WebKit optimized styles */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  /* WebKit font rendering optimization */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Improve text clarity in WebView */
+  font-feature-settings: 'liga' 1, 'kern' 1;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  
+  /* Color scheme handling */
+  color-scheme: light;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Base body styles for Tauri */
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  
+  /* WebKit specific optimizations */
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  
+  /* Prevent text selection issues */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+  
+  /* Better rendering performance */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Link styles */
+a {
+  font-weight: 500;
+  color: #1976D2;
+  text-decoration: none;
+  /* WebKit link optimization */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+a:hover {
+  color: #1565C0;
+  text-decoration: underline;
+}
+
+/* Heading optimization */
+h1, h2, h3, h4, h5, h6 {
+  /* Better font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0.5em 0;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 2.5em;
+  line-height: 1.2;
 }
 
+/* Button base styles (Vuetify will override most of these) */
 button {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  
+  /* WebKit button optimization */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  
+  /* Smooth transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Better rendering */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
+
 button:hover {
-  border-color: #646cff;
+  /* Subtle hover effect */
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid #1976D2;
+  outline-offset: 2px;
 }
 
+/* Card styles for Tauri compatibility */
 .card {
   padding: 2em;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* WebKit optimization */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
+/* App container optimization */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  
+  /* Remove centering for Tauri app */
+  text-align: left;
+  
+  /* Ensure proper rendering */
+  position: relative;
+  overflow: hidden;
 }
 
+/* Media query optimization for light theme (Tauri default) */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
+    color: #212529;
     background-color: #ffffff;
   }
+  
   a:hover {
-    color: #747bff;
+    color: #1565C0;
   }
+  
   button {
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+}
+
+/* Additional WebKit specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  /* WebKit-specific styles for better rendering */
+  .v-application {
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .v-btn {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 }

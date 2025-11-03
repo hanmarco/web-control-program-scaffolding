@@ -266,48 +266,111 @@ async function handleQuickDisconnect() {
 </script>
 
 <style>
-/* Global styles */
+/* Global styles optimized for Tauri WebKit */
 
-/* Hide horizontal scrollbar */
+/* Base reset for better cross-platform rendering */
+* {
+  box-sizing: border-box;
+}
+
+/* Hide horizontal scrollbar with WebKit compatibility */
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  /* WebKit specific fixes */
+  -webkit-overflow-scrolling: touch;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Prevent horizontal scrolling */
 .v-app {
   overflow-x: hidden;
+  /* Ensure proper rendering in Tauri WebView */
+  position: relative;
+  width: 100%;
+  height: 100vh;
 }
 
 /* Ensure app bar content doesn't overflow */
 .v-app-bar {
   overflow-x: hidden;
+  /* WebKit optimization */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .v-app-bar .v-toolbar__content {
   overflow-x: hidden;
   padding-right: 16px;
+  /* Prevent layout shifts */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Ensure button group doesn't cause overflow */
 .v-btn-group {
   flex-shrink: 0;
   max-width: calc(100vw - 400px); /* Reserve space for title and margins */
+  /* WebKit button rendering fix */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Vuetify button fixes for WebKit */
+.v-btn {
+  /* Prevent button text from being cut off */
+  white-space: nowrap;
+  /* WebKit specific button fixes */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Ensure connection menu cards fit properly */
 .v-menu .v-card {
   max-width: min(400px, calc(100vw - 32px));
+  /* WebKit shadow rendering */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* Fix any potential overflow in main content */
 .v-main {
   overflow-x: hidden;
+  /* Ensure proper content rendering */
+  position: relative;
+  width: 100%;
 }
 
-/* Webkit scrollbar hiding */
+/* Navigation drawer fixes for WebKit */
+.v-navigation-drawer {
+  /* Prevent drawer from causing layout issues */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* List items rendering optimization */
+.v-list-item {
+  /* Prevent text wrapping issues */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* WebKit scrollbar hiding with fallbacks */
 ::-webkit-scrollbar:horizontal {
   display: none;
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 /* Firefox scrollbar hiding */
@@ -315,9 +378,73 @@ html, body {
   scrollbar-width: none;
 }
 
-/* Hide scrollbars but keep functionality */
+/* IE/Edge scrollbar hiding */
 * {
   -ms-overflow-style: none;
+}
+
+/* Form element fixes for WebKit */
+.v-text-field .v-field__input {
+  /* Prevent input rendering issues */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+.v-select .v-field__input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Menu and overlay fixes */
+.v-overlay__content {
+  /* Ensure overlays render properly */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Card component optimization */
+.v-card {
+  /* Prevent card rendering issues */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  /* Ensure proper background rendering */
+  background-clip: padding-box;
+}
+
+/* Animation performance optimization for WebKit */
+.v-btn--variant-flat,
+.v-btn--variant-elevated,
+.v-btn--variant-outlined {
+  /* Hardware acceleration for better performance */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  /* Smooth transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fix potential flex layout issues in WebKit */
+.d-flex {
+  display: -webkit-flex;
+  display: flex;
+}
+
+.align-center {
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.justify-center {
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+/* Icon rendering optimization */
+.v-icon {
+  /* Prevent icon rendering issues */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>
 
