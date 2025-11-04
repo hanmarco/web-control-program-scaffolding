@@ -120,6 +120,50 @@ export const vuetifyWebKitFixes = {
     return isWebKit && isTauri;
   },
 
+  // Diagnose Vuetify theme state at runtime
+  diagnoseTheme(): void {
+    try {
+      const root = document.documentElement;
+      const classes = Array.from(root.classList).filter(Boolean);
+      const vars = [
+        '--v-theme-primary',
+        '--v-theme-background',
+        '--v-theme-surface',
+        '--v-theme-on-primary',
+        '--v-theme-on-surface'
+      ];
+
+      const computed = getComputedStyle(root);
+      const values: Record<string, string> = {};
+      vars.forEach(v => {
+        values[v] = computed.getPropertyValue(v) || '(unset)';
+      });
+
+      // Detect Vuetify theme classes
+      const hasDarkClass = classes.some(c => /dark/i.test(c) || /theme--dark/i.test(c) || /v-theme--dark/i.test(c));
+      const hasLightClass = classes.some(c => /light/i.test(c) || /theme--light/i.test(c) || /v-theme--light/i.test(c));
+
+      console.log('Vuetify Theme Diagnosis:', {
+        documentClasses: classes,
+        hasDarkClass,
+        hasLightClass,
+        cssVars: values,
+        userAgent: navigator.userAgent
+      });
+
+      // Also create a hidden element to resolve the computed color for "primary"
+      const el = document.createElement('div');
+      el.style.cssText = 'position:absolute;left:-9999px;top:-9999px;color:var(--v-theme-primary);';
+      el.textContent = 'x';
+      document.body.appendChild(el);
+      const resolved = getComputedStyle(el).color;
+      console.log('Resolved --v-theme-primary color:', resolved);
+      document.body.removeChild(el);
+    } catch (e) {
+      console.error('Error diagnosing Vuetify theme:', e);
+    }
+  },
+
   // Monitor for rendering issues
   monitorPerformance(): void {
     // Check for layout shifts

@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
 import './style.css'
 import App from './App.vue'
 import vuetifyWebKitFixes from './plugins/vuetify-webkit-fix'
@@ -78,6 +79,13 @@ app.mount('#app')
 
 // Apply WebKit compatibility fixes for Tauri after mount
 setTimeout(() => {
+  // Diagnose theme first (always helpful) and then apply fixes if running in Tauri
+  try {
+    vuetifyWebKitFixes.diagnoseTheme()
+  } catch (e) {
+    console.warn('Theme diagnosis failed:', e)
+  }
+
   // Check if running in Tauri and apply fixes
   if (vuetifyWebKitFixes.checkCompatibility()) {
     console.log('Applying Vuetify WebKit compatibility fixes...')
