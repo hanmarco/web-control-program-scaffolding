@@ -3,12 +3,24 @@ import { ref, computed } from 'vue'
 import type { RegisterMap, Register, RegisterValue } from '../types/RegisterTypes'
 import { useCommunicationStore } from './communicationStore'
 
+export interface RegisterManifestEntry {
+  id: string
+  name: string
+  description?: string
+  file: string
+  icon?: string
+}
+
 export const useRegisterStore = defineStore('register', () => {
   // State
   const registerMap = ref<RegisterMap | null>(null)
   const registerValues = ref<Map<string, RegisterValue>>(new Map())
   const isLoading = ref(false)
   const errorMessage = ref<string | null>(null)
+  const manifest = ref<RegisterManifestEntry[]>([])
+  const isManifestLoading = ref(false)
+  const manifestError = ref<string | null>(null)
+  const activeMapId = ref<string | null>(null)
 
   // Getters
   const registers = computed(() => registerMap.value?.registers || [])
@@ -16,6 +28,7 @@ export const useRegisterStore = defineStore('register', () => {
     if (!registerMap.value?.defaultSlaveAddress) return 0x50
     return parseInt(registerMap.value.defaultSlaveAddress, 16)
   })
+  const activeManifestEntry = computed(() => manifest.value.find(entry => entry.id === activeMapId.value) || null)
 
   // Actions
   async function loadRegisterMap(map: RegisterMap) {
@@ -23,6 +36,7 @@ export const useRegisterStore = defineStore('register', () => {
       isLoading.value = true
       errorMessage.value = null
       registerMap.value = map
+      registerValues.value.clear()
     } catch (error) {
       errorMessage.value = error instanceof Error ? error.message : 'Failed to load register map'
       throw error
@@ -39,14 +53,73 @@ export const useRegisterStore = defineStore('register', () => {
       // In a real Tauri app, this would use the fs plugin
       // For now, we'll use fetch for JSON files
       const response = await fetch(filePath)
+      if (!response.ok) {
+        throw new Error(`Failed to load register map file (${response.status})`)
+      }
+
       const data = await response.json()
       registerMap.value = data
+      registerValues.value.clear()
     } catch (error) {
       errorMessage.value = error instanceof Error ? error.message : 'Failed to load register map file'
       throw error
     } finally {
       isLoading.value = false
     }
+  }
+
+  async function loadManifest(manifestPath = '/register/manifest.json') {
+    try {
+      isManifestLoading.value = true
+      manifestError.value = null
+
+      const response = await fetch(manifestPath)
+      if (!response.ok) {
+        throw new Error(`Failed to load register manifest (${response.status})`)
+      }
+
+      const data: RegisterManifestEntry[] = await response.json()
+      manifest.value = data
+
+      if (data.length === 0) {
+        registerMap.value = null
+        registerValues.value.clear()
+        activeMapId.value = null
+        return
+      }
+
+      const first = data[0]
+      const currentId = activeMapId.value
+
+      if (currentId) {
+        const activeEntry = data.find(item => item.id === currentId)
+        if (activeEntry) {
+          await setActiveMap(activeEntry.id, { force: true })
+          return
+        }
+      }
+
+      if (first) {
+        await setActiveMap(first.id, { force: true })
+      }
+    } catch (error) {
+      manifestError.value = error instanceof Error ? error.message : 'Failed to load register manifest'
+      throw error
+    } finally {
+      isManifestLoading.value = false
+    }
+  }
+
+  async function setActiveMap(id: string, options?: { force?: boolean }) {
+    if (!options?.force && activeMapId.value === id) return
+
+    const entry = manifest.value.find(item => item.id === id)
+    if (!entry) {
+      throw new Error(`Register map with id "${id}" not found in manifest`)
+    }
+
+    await loadRegisterMapFromFile(`/register/${entry.file}`)
+    activeMapId.value = id
   }
 
   function getRegister(address: string): Register | undefined {
@@ -153,12 +226,19 @@ export const useRegisterStore = defineStore('register', () => {
     registerValues,
     isLoading,
     errorMessage,
+    manifest,
+    isManifestLoading,
+    manifestError,
+    activeMapId,
     // Getters
     registers,
     defaultSlaveAddress,
+    activeManifestEntry,
     // Actions
     loadRegisterMap,
     loadRegisterMapFromFile,
+    loadManifest,
+    setActiveMap,
     getRegister,
     getRegisterValue,
     updateRegisterValue,

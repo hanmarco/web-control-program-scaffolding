@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "name": "General Control Block",
+  "description": "Baseline control registers covering identification, GPIO, and operating modes.",
+  "defaultSlaveAddress": "0x50",
+  "registers": [
+    {
+      "address": "0x00",
+      "name": "Device ID",
+      "description": "Unique identifier for the device (read-only).",
+      "type": "indicator",
+      "writable": false,
+      "format": "hex"
+    },
+    {
+      "address": "0x01",
+      "name": "Status",
+      "description": "Status flags providing current operating state.",
+      "type": "indicator",
+      "writable": false,
+      "format": "binary"
+    },
+    {
+      "address": "0x10",
+      "name": "Master Control",
+      "description": "Primary control register with 8 configurable bits.",
+      "type": "control",
+      "mode": "debug",
+      "writable": true
+    },
+    {
+      "address": "0x11",
+      "name": "GPIO Direction",
+      "description": "Configure GPIO pins as input or output.",
+      "type": "control",
+      "mode": "compact",
+      "writable": true
+    },
+    {
+      "address": "0x20",
+      "name": "Operating Mode",
+      "description": "Select primary operating profile.",
+      "type": "combobox",
+      "bits": [0, 1, 2],
+      "writable": true,
+      "options": [
+        { "value": 0, "label": "Standby", "description": "Minimal activity" },
+        { "value": 1, "label": "Normal", "description": "Standard performance" },
+        { "value": 2, "label": "Performance", "description": "Maximum throughput" },
+        { "value": 3, "label": "Diagnostics", "description": "Enable debug blocks" }
+      ]
+    },
+    {
+      "address": "0x30",
+      "name": "GPIO Status",
+      "description": "Current GPIO pin states (read-only).",
+      "type": "indicator",
+      "writable": false,
+      "format": "binary"
+    }
+  ]
+}

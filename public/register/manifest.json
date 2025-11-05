@@ -1,0 +1,16 @@
+[
+  {
+    "id": "general",
+    "name": "General Control",
+    "description": "Baseline control registers for device setup and GPIO handling.",
+    "file": "general-registers.json",
+    "icon": "mdi-cog-outline"
+  },
+  {
+    "id": "power",
+    "name": "Power Management",
+    "description": "Voltage, current and rail enable controls.",
+    "file": "power-management.json",
+    "icon": "mdi-flash"
+  }
+]

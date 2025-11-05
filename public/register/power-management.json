@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "name": "Power Management",
+  "description": "Voltage and current configuration block for power rails.",
+  "defaultSlaveAddress": "0x50",
+  "registers": [
+    {
+      "address": "0x40",
+      "name": "Rail Enable",
+      "description": "Toggle individual power rails on or off.",
+      "type": "control",
+      "mode": "debug",
+      "writable": true
+    },
+    {
+      "address": "0x41",
+      "name": "Core Voltage",
+      "description": "Adjust core supply voltage.",
+      "type": "slider",
+      "bits": [0, 1, 2, 3],
+      "min": 0.8,
+      "max": 1.2,
+      "step": 0.01,
+      "unit": "V",
+      "formula": "0.8 + (value / 15) * 0.4",
+      "writable": true
+    },
+    {
+      "address": "0x42",
+      "name": "IO Voltage",
+      "description": "Adjust IO bank supply voltage.",
+      "type": "slider",
+      "bits": [0, 1, 2, 3, 4],
+      "min": 1.2,
+      "max": 3.3,
+      "step": 0.05,
+      "unit": "V",
+      "formula": "1.2 + (value / 31) * 2.1",
+      "writable": true
+    },
+    {
+      "address": "0x43",
+      "name": "Current Limit",
+      "description": "Set maximum current draw for the rail.",
+      "type": "slider",
+      "bits": [0, 1, 2, 3, 4, 5],
+      "min": 0,
+      "max": 4000,
+      "step": 100,
+      "unit": "mA",
+      "formula": "value * 100",
+      "writable": true
+    },
+    {
+      "address": "0x44",
+      "name": "Supply Status",
+      "description": "Read back combined power-good state.",
+      "type": "indicator",
+      "writable": false,
+      "format": "binary"
+    }
+  ]
+}
