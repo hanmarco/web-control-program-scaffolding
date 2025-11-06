@@ -1,7 +1,7 @@
 <template>
   <div class="register-bit-panel">
-    <v-card class="pa-1">
-      <v-row class="align-center ga-4 flex-nowrap">
+    <v-card class="pa-1 register-bit-panel-card">
+      <v-row class="align-center ga-0">
         <v-text-field
           v-model="addressInput"
           variant="outlined"
@@ -10,6 +10,7 @@
           :rules="[validateAddress]"
           placeholder="ADDR"
           class="narrow-field"
+          :max-width="70"
           @keyup.enter="readRegister"
         ></v-text-field>
 
@@ -20,6 +21,7 @@
           hide-details
           readonly
           placeholder="VAL"
+          :max-width="70"
           class="narrow-field"
         ></v-text-field>
 
@@ -290,10 +292,12 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-width: 460px;
+  margin: 0 auto;
 }
 
-.flex-nowrap {
-  flex-wrap: nowrap;
+.register-bit-panel-card {
+  width: 100%;
 }
 
 .narrow-field {
@@ -302,13 +306,14 @@ watch(
 
 .bit-checkboxes {
   display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
+  gap: 0px;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .bit-checkbox {
-  width: 32px;
+  width: 28px;
   margin-right: 0;
   flex: 0 0 auto;
 }
