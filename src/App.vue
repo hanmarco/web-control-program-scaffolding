@@ -206,7 +206,15 @@
     </v-app-bar>
 
     <v-main>
-      <router-view />
+      <router-view v-slot="{ Component, route }">
+        <KeepAlive>
+          <component
+            v-if="Component"
+            :is="Component"
+            :key="route.fullPath"
+          />
+        </KeepAlive>
+      </router-view>
     </v-main>
   </v-app>
 </template>
