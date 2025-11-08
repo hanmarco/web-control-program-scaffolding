@@ -63,6 +63,10 @@ const panelIndices = computed(() =>
 .panel-list {
   height: calc(100vh - 220px);
   min-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+  -ms-overflow-style: auto;
 }
 
 .panel-list :deep(.v-virtual-scroll__container) {
@@ -70,5 +74,18 @@ const panelIndices = computed(() =>
   flex-direction: column;
   gap: 12px;
   padding-bottom: 12px;
+}
+
+:deep(.panel-list::-webkit-scrollbar) {
+  width: 8px;
+}
+
+:deep(.panel-list::-webkit-scrollbar-track) {
+  background: transparent;
+}
+
+:deep(.panel-list::-webkit-scrollbar-thumb) {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
 }
 </style>
