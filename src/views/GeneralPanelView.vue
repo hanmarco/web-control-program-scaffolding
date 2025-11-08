@@ -15,15 +15,19 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col
-        v-for="index in panelIndices"
-        :key="index"
-        cols="12"
+    <div class="panel-list">
+      <v-virtual-scroll
+        :items="panelIndices"
+        :item-height="PANEL_ITEM_HEIGHT"
       >
-        <RegisterBitPanel :source="`general-${index + 1}`" />
-      </v-col>
-    </v-row>
+        <template #default="{ item }">
+          <RegisterBitPanel
+            :key="item"
+            :source="`general-${item + 1}`"
+          />
+        </template>
+      </v-virtual-scroll>
+    </div>
   </v-container>
 </template>
 
@@ -31,10 +35,15 @@
 import { ref, watch, computed } from 'vue'
 import RegisterBitPanel from '../components/custom/RegisterBitPanel.vue'
 
+defineOptions({
+  name: 'GeneralPanelView'
+})
+
 const MIN_PANELS = 1
 const MAX_PANELS = 256
+const PANEL_ITEM_HEIGHT = 120
 
-const panelCount = ref<number>(MIN_PANELS)
+const panelCount = ref<number>(MAX_PANELS)
 
 watch(panelCount, (value) => {
   let sanitized = Number.isFinite(value) ? Math.floor(value) : MIN_PANELS
@@ -49,3 +58,17 @@ const panelIndices = computed(() =>
   Array.from({ length: panelCount.value }, (_, idx) => idx)
 )
 </script>
+
+<style scoped>
+.panel-list {
+  height: calc(100vh - 220px);
+  min-height: 320px;
+}
+
+.panel-list :deep(.v-virtual-scroll__container) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+</style>
