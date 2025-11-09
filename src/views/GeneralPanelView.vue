@@ -67,6 +67,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import type { VNodeRef } from 'vue'
 import RegisterBitPanel from '../components/custom/RegisterBitPanel.vue'
 import { useRegisterStore } from '../stores/registerStore'
 import { useCommunicationStore } from '../stores/communicationStore'
@@ -84,7 +85,9 @@ const isBulkReading = ref(false)
 const isBulkWriting = ref(false)
 const isBulkClearing = ref(false)
 const bulkProgress = ref(0)
-const panelRefs = new Map<number, InstanceType<typeof RegisterBitPanel>>()
+type RegisterBitPanelHandle = { clear: () => void }
+
+const panelRefs = new Map<number, RegisterBitPanelHandle>()
 
 const registerStore = useRegisterStore()
 const commStore = useCommunicationStore()
@@ -127,14 +130,17 @@ const clearAllLabel = computed(() => {
 
 const toAddressHex = (index: number) => `0x${index.toString(16).toUpperCase().padStart(2, '0')}`
 
-function setPanelRef(index: number) {
-  return (instance: InstanceType<typeof RegisterBitPanel> | null) => {
-    if (instance) {
+function setPanelRef(index: number): VNodeRef {
+  const assign = (value: unknown) => {
+    const instance = value as RegisterBitPanelHandle | null
+    if (instance && typeof instance.clear === 'function') {
       panelRefs.set(index, instance)
     } else {
       panelRefs.delete(index)
     }
   }
+
+  return assign as unknown as VNodeRef
 }
 
 async function handleReadAll() {
