@@ -79,6 +79,8 @@ defineOptions({
 const MIN_PANELS = 1
 const MAX_PANELS = 256
 const PANEL_ITEM_HEIGHT = 120
+const BULK_CHUNK_SIZE = 64
+const BULK_SINGLE_TRANSFER_LIMIT = 256
 
 const panelCount = ref<number>(MAX_PANELS)
 const isBulkReading = ref(false)
@@ -148,12 +150,47 @@ async function handleReadAll() {
 
   isBulkReading.value = true
   bulkProgress.value = 0
+
   try {
     const total = totalPanels.value
-    for (let idx = 0; idx < total; idx += 1) {
-      const address = toAddressHex(idx)
-      await registerStore.readRegisterValue(address)
-      bulkProgress.value = idx + 1
+    if (total <= 0) return
+
+    const slaveAddr = registerStore.defaultSlaveAddress
+    const baseAddress = 0
+
+    const applyBuffer = (buffer: Uint8Array, offset: number) => {
+      for (let i = 0; i < buffer.length; i += 1) {
+        const idx = offset + i
+        const address = toAddressHex(idx)
+        const value = buffer[i] ?? 0
+        registerStore.updateRegisterValue(address, value)
+      }
+    }
+
+    const trySingleTransfer = async () => {
+      if (total > BULK_SINGLE_TRANSFER_LIMIT) {
+        return false
+      }
+
+      try {
+        const result = await commStore.readRegister(slaveAddr, baseAddress, total)
+        applyBuffer(result, 0)
+        bulkProgress.value = total
+        return true
+      } catch (error) {
+        console.warn('Single-transfer read failed, falling back to chunked mode', error)
+        return false
+      }
+    }
+
+    const performedSingle = await trySingleTransfer()
+    if (performedSingle) return
+
+    for (let offset = 0; offset < total; offset += BULK_CHUNK_SIZE) {
+      const chunkLength = Math.min(BULK_CHUNK_SIZE, total - offset)
+      const result = await commStore.readRegister(slaveAddr, baseAddress + offset, chunkLength)
+      applyBuffer(result, offset)
+      bulkProgress.value = offset + chunkLength
     }
   } catch (error) {
     console.error('Failed to read all registers:', error)
@@ -167,13 +204,60 @@ async function handleWriteAll() {
 
   isBulkWriting.value = true
   bulkProgress.value = 0
+
   try {
     const total = totalPanels.value
-    for (let idx = 0; idx < total; idx += 1) {
-      const address = toAddressHex(idx)
-      const value = registerStore.getRegisterValue(address) ?? 0
-      await registerStore.writeRegisterValue(address, value)
-      bulkProgress.value = idx + 1
+    if (total <= 0) return
+
+    const slaveAddr = registerStore.defaultSlaveAddress
+    const baseAddress = 0
+
+    const buildChunkBuffer = (offset: number, length: number) => {
+      const buffer = new Uint8Array(length)
+      for (let i = 0; i < length; i += 1) {
+        const idx = offset + i
+        const address = toAddressHex(idx)
+        const value = registerStore.getRegisterValue(address) ?? 0
+        buffer[i] = value & 0xFF
+      }
+      return buffer
+    }
+
+    const applyBuffer = (buffer: Uint8Array, offset: number) => {
+      for (let i = 0; i < buffer.length; i += 1) {
+        const idx = offset + i
+        const address = toAddressHex(idx)
+        const value = buffer[i] ?? 0
+        registerStore.updateRegisterValue(address, value)
+      }
+    }
+
+    const trySingleTransfer = async () => {
+      if (total > BULK_SINGLE_TRANSFER_LIMIT) {
+        return false
+      }
+
+      try {
+        const buffer = buildChunkBuffer(0, total)
+        await commStore.writeRegister(slaveAddr, baseAddress, buffer)
+        applyBuffer(buffer, 0)
+        bulkProgress.value = total
+        return true
+      } catch (error) {
+        console.warn('Single-transfer write failed, falling back to chunked mode', error)
+        return false
+      }
+    }
+
+    const performedSingle = await trySingleTransfer()
+    if (performedSingle) return
+
+    for (let offset = 0; offset < total; offset += BULK_CHUNK_SIZE) {
+      const chunkLength = Math.min(BULK_CHUNK_SIZE, total - offset)
+      const buffer = buildChunkBuffer(offset, chunkLength)
+      await commStore.writeRegister(slaveAddr, baseAddress + offset, buffer)
+      applyBuffer(buffer, offset)
+      bulkProgress.value = offset + chunkLength
     }
   } catch (error) {
     console.error('Failed to write all registers:', error)
