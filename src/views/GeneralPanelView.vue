@@ -20,7 +20,7 @@
           color="primary"
           @click="handleReadAll"
           :loading="isBulkReading"
-          :disabled="!commStore.isConnected || isBulkWriting || isBulkReading"
+          :disabled="!commStore.isConnected || isBulkWriting || isBulkReading || isBulkClearing"
         >
           {{ readAllLabel }}
         </v-btn>
@@ -30,9 +30,19 @@
           color="success"
           @click="handleWriteAll"
           :loading="isBulkWriting"
-          :disabled="!commStore.isConnected || isBulkWriting || isBulkReading"
+          :disabled="!commStore.isConnected || isBulkWriting || isBulkReading || isBulkClearing"
         >
           {{ writeAllLabel }}
+        </v-btn>
+        <v-btn
+          size="small"
+          variant="tonal"
+          color="warning"
+          @click="handleClearAll"
+          :loading="isBulkClearing"
+          :disabled="isBulkWriting || isBulkReading || isBulkClearing"
+        >
+          {{ clearAllLabel }}
         </v-btn>
       </v-col>
     </v-row>
@@ -47,6 +57,7 @@
             :key="item"
             :source="`general-${item + 1}`"
             :address-input="`0x${item.toString(16).toUpperCase().padStart(2, '0')}`"
+            :ref="setPanelRef(item)"
           />
         </template>
       </v-virtual-scroll>
@@ -71,7 +82,9 @@ const PANEL_ITEM_HEIGHT = 120
 const panelCount = ref<number>(MAX_PANELS)
 const isBulkReading = ref(false)
 const isBulkWriting = ref(false)
+const isBulkClearing = ref(false)
 const bulkProgress = ref(0)
+const panelRefs = new Map<number, InstanceType<typeof RegisterBitPanel>>()
 
 const registerStore = useRegisterStore()
 const commStore = useCommunicationStore()
@@ -105,7 +118,24 @@ const writeAllLabel = computed(() => {
   return 'Write All'
 })
 
+const clearAllLabel = computed(() => {
+  if (isBulkClearing.value) {
+    return `Clearing ${bulkProgress.value}/${totalPanels.value}`
+  }
+  return 'Clear All'
+})
+
 const toAddressHex = (index: number) => `0x${index.toString(16).toUpperCase().padStart(2, '0')}`
+
+function setPanelRef(index: number) {
+  return (instance: InstanceType<typeof RegisterBitPanel> | null) => {
+    if (instance) {
+      panelRefs.set(index, instance)
+    } else {
+      panelRefs.delete(index)
+    }
+  }
+}
 
 async function handleReadAll() {
   if (!commStore.isConnected || isBulkReading.value || isBulkWriting.value) return
@@ -143,6 +173,27 @@ async function handleWriteAll() {
     console.error('Failed to write all registers:', error)
   } finally {
     isBulkWriting.value = false
+  }
+}
+
+async function handleClearAll() {
+  if (isBulkReading.value || isBulkWriting.value || isBulkClearing.value) return
+
+  isBulkClearing.value = true
+  bulkProgress.value = 0
+  try {
+    const total = totalPanels.value
+    for (let idx = 0; idx < total; idx += 1) {
+      const address = toAddressHex(idx)
+      registerStore.updateRegisterValue(address, 0)
+      bulkProgress.value = idx + 1
+      const panel = panelRefs.get(idx)
+      panel?.clear()
+    }
+  } catch (error) {
+    console.error('Failed to clear registers:', error)
+  } finally {
+    isBulkClearing.value = false
   }
 }
 </script>

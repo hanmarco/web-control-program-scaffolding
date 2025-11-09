@@ -161,6 +161,16 @@ function updateBitsFromValue(value: number) {
   }
 }
 
+function clearRegister() {
+  currentValue.value = 0
+  updateBitsFromValue(0)
+  registerStore.updateRegisterValue(formatAddressInput(addressInput.value), 0)
+}
+
+defineExpose({
+  clear: clearRegister,
+})
+
 watch(
   currentValue,
   (value) => {
