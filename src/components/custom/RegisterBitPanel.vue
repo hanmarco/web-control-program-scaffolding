@@ -161,6 +161,16 @@ function updateBitsFromValue(value: number) {
   }
 }
 
+watch(
+  currentValue,
+  (value) => {
+    if (!isValidAddress.value) return
+    const addressHex = formatAddressInput(addressInput.value)
+    registerStore.updateRegisterValue(addressHex, value)
+  },
+  { immediate: true }
+)
+
 async function readRegister() {
   if (!commStore.isConnected || !isValidAddress.value) return
 
