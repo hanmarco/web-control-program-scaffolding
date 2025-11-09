@@ -24,6 +24,7 @@
           <RegisterBitPanel
             :key="item"
             :source="`general-${item + 1}`"
+            :address-input="`0x${item.toString(16).toUpperCase().padStart(2, '0')}`"
           />
         </template>
       </v-virtual-scroll>

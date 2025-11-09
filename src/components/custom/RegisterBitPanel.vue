@@ -78,6 +78,7 @@ import { useRegisterStore } from '../../stores/registerStore'
 
 const props = defineProps<{
   source?: string
+  addressInput?: string
 }>()
 
 const commStore = useCommunicationStore()
@@ -85,7 +86,9 @@ const registerStore = useRegisterStore()
 
 const panelSource = computed(() => props.source ?? 'general')
 
-const addressInput = ref('0x00')
+const addressInput = ref(
+  props.addressInput ? formatAddressInput(props.addressInput) : '0x00'
+)
 const currentValue = ref(0)
 const bitValues = ref<boolean[]>(new Array(8).fill(false))
 const isReading = ref(false)
@@ -268,6 +271,17 @@ function formatAddressInput(raw: string): string {
 
   return '0x'
 }
+
+watch(
+  () => props.addressInput,
+  (value) => {
+    if (value === undefined || value === null) return
+    const formatted = formatAddressInput(value)
+    if (formatted !== addressInput.value) {
+      addressInput.value = formatted
+    }
+  }
+)
 
 watch(
   () => {
